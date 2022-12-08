@@ -1,0 +1,135 @@
+---
+title: "PEC1 otoño 2022"
+author: "EUGENIO MOYA PÉREZ"
+date: '11/10/2022'
+output:
+  pdf_document: default
+  word_document: default
+fontsize: 12pt
+---
+
+Las PECs se basarán en una base de datos obtenida a partir del repositorio de microdatos del “Banco Mundial” en
+ https://microdata.worldbank.org/index.php/catalog/424/get-microdata 
+
+Contiene indicaciones, entre otros de 
+
+1. *City* = Nombre de la ciudad 
+2. *Country* = País 
+3. *Population2000* = Población de la ciudad en 2000. 
+4. *PM10Concentration1999* = “PM10 concentrations (micro gramos por cubic meter) in  residential areas of cities larger than 100,000”, en 1999 
+5. *Region* = Clasificación en región geográfica 
+6. *IncomeGroup* = Clasificación según nivel de ingresos del país. 
+
+Para importar los datos podemos usar la siguiente instrucción: 
+
+```{r}
+dadesPM10<-read.table(
+  "C:/Users/eugen/Dropbox/UOC/Asignaturas/SEMESTRE/Estadística/PEC1/AirPollution2000WB_UOC2.CSV",
+  header=TRUE, 
+          sep=";",na.strings="NA",
+          fileEncoding = "UTF-8", quote = "\"", 
+          colClasses=c(rep("character",4),rep("numeric",2),
+                       rep("character",2)))
+```
+
+Os puede ser útil consultar el siguiente material del reto 1:
+
+- El entorno estadístico R. Estructura, lenguaje y sintaxis 
+- Análisis de datos y estadística descriptiva con R
+- Actividades Resueltas del Reto 1 (Estadística Descriptiva)
+
+Hay que entregar la práctica en forma de fichero pdf (exportando el resultado final a pdf por ejemplo) en esta misma tarea Moodle; no hay que adjuntarla en el registro de EC. 
+
+
+# NOMBRE: EUGENIO MOYA PÉREZ
+
+# PEC1
+
+Una vez importados los datos
+
+## Pregunta 1. Estudiaremos la variable `Population2000`. Encontrad:
+# a) Los resúmenes numéricos (mínimo, Q1, mediana, media, Q3 y máximo) y la desviación estándar (10%).
+
+##    1.a.1) Resúmen numérico.
+
+```{r}
+summary(dadesPM10$Population2000)
+```
+##    1.a.2) Desviación estándar.
+
+```{r}
+desviacion <- sd(dadesPM10$Population2000) 
+print(c("Desviación estándar:", round(desviacion,2)))
+```
+
+# b) Los resúmenes numéricos de la variable `Population2000` pero sólo en las ciudades de España. Haced el histograma correspondiente con `breaks=20` para que haya un número de intervalos (clases) suficientes. Comentad los resultados y luego comparadlos con los generales. (20%).
+
+\newpage
+
+##    1.b.1) Los resúmenes numéricos ciudades de España
+
+```{r}
+summary(dadesPM10$Population2000[dadesPM10$Country=="Spain"])
+```
+##    1.b.2) Histograma ciudades de España
+
+```{r}
+hist(dadesPM10$Population2000[dadesPM10$Country=="Spain"], breaks=20, 
+     ylab="Frecuencia", xlab="Población de la ciudad en 2000", 
+     main="Dades PM10 Spain", col = rainbow(20))
+grid(nx = NA, ny = NULL, lwd = 1, lty = 1, col = "gray")
+```
+\newpage
+
+##    1.b.3) Comentario de resultados.
+
+En el histograma podemos observar que la forma es asimétrica. Es un histograma unimodal ya que únicamente tiene un pico muy destacado y una cola larga que se prolonga hacia la derecha. En el histograma podemos observar dos datos muy extremos con respecto al resto de la serie.
+En cuanto a la comparación del resúmen numérico entre España y el resto de paises podemos observar que la media es prácticamente la mitad 305895 frente a los 614693 del total. 
+
+## Pregunta 2. Encontrad el valor mínimo de la variable `Population2000` con la ciudad y el correspondiente país donde se da este valor, así como la región geográfica a la que pertenece. (20%)
+
+
+```{r}
+dadesPM10[which.min(dadesPM10$Population2000), c("City","Country","Region")]
+
+```
+
+
+## Pregunta 3. Haced una tabla de frecuencias y el diagrama de barras de la variable `Region` con las etiquetas verticales y ampliando el área del gráfico para que quepan (podéis utilizar la instrucción par(mar=c(12,5,1,1)) y la opción `las=2`). Comentad los resultados. (25%)
+
+##    3.1) Tabla de frecuencias
+
+```{r}
+tabla<-table(dadesPM10$Region)
+frameTabla<-data.frame(tabla)
+names(frameTabla)[1]<-"Region"
+names(frameTabla)[2]<-"Frequency"
+frameTabla
+```
+\newpage
+##    3.2)Diagrama Region
+
+```{r}
+par(mar=c(12,5,1,1))
+barplot(table(dadesPM10$Region),las=2, main="Regiones", ylab = "Frecuencias",
+        col=rainbow(20), cex.names = 0.8, cex.axis = 0.8)
+grid(nx = NA, ny = NULL, lwd = 1, lty = 1, col = "gray")
+```
+
+##    3.3) Comentario
+En este diagrama podemos observar como el Este de Asia y Pacífico junto a Europa y Centro de Asia, tienen más ciudades objeto de estudio muy por encima en comparación con el resto de regiones estudiadas.
+
+## Pregunta 4. Haced un Boxplot de `PM10Concentration1999` distinguiendo por `IncomeGroup`, con las etiquetas verticales. Los límites del eje vertical tienen que estar entre 0 y 400 y hay que ampliar el área del gráfico, para que se vean las cajas bien, con la instrucción par(mar=c(12,5,1,1)). Comentad los resultados. (25%) 
+
+##    4.1) Boxplot
+
+```{r}
+par(mar=c(12,5,1,1))
+boxplot(dadesPM10$PM10Concentration1999 ~ dadesPM10$IncomeGroup,las=2, 
+        ylab ="", xlab="", ylim=c(0,400),col=rainbow(20), cex.names = 0.8, 
+        cex.axis = 0.8, main ="Boxplot IncomeGroup")
+```
+
+## 4.2 Comentario
+
+En este boxplot podemos observar que la media mas alta es la de "lower middle income" por lo que las regiones más comunes son las de clase media baja y la media baja es la de "Hight income" por lo que las clases altas son las menos comunes en este estudio.
